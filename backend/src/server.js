@@ -76,7 +76,7 @@ app.post('/api/auth/google', async (req,res) => {
     if(!p?.email_verified || !p.email) return res.status(401).json({error:'Google email could not be verified.'});
     let user=await User.findOne({$or:[{googleId:p.sub},{email:p.email.toLowerCase()}]});
     if(!user) {
-      const base=(p.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,14)||'user');
+      const baseRaw=p.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,14); const base=(baseRaw.length>=3?baseRaw:(baseRaw+'user').slice(0,14));
       let username=base, i=1;
       while(await User.exists({username})) username=base.slice(0,14)+i++;
       user=await User.create({username,email:p.email.toLowerCase(),displayName:(p.name||base).slice(0,40),googleId:p.sub,avatar:p.picture||''});
